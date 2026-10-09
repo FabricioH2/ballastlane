@@ -17,7 +17,7 @@ import static org.mockito.Mockito.when;
 class ListPokemonServiceTest {
 
     private final PokemonCatalog catalog = mock(PokemonCatalog.class);
-    private final ListPokemonService service = new ListPokemonService(catalog);
+    private final ListPokemonService service = new ListPokemonService(catalog, 100);
 
     @Test
     void returnsPageFromCatalog() {
@@ -56,5 +56,18 @@ class ListPokemonServiceTest {
 
         assertThat(service.list(0, 1)).isEqualTo(empty);
         assertThat(service.list(0, 100)).isEqualTo(empty);
+    }
+
+    @Test
+    void rejectsInvalidMaxPageSizeConfiguration() {
+        assertThatThrownBy(() -> new ListPokemonService(catalog, 0))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void usesConfiguredMaxPageSize() {
+        var smallService = new ListPokemonService(catalog, 10);
+        assertThatThrownBy(() -> smallService.list(0, 11))
+                .isInstanceOf(InvalidPaginationException.class);
     }
 }

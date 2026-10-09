@@ -1,3 +1,7 @@
 spring:
   application:
     name: bla-excercise
+
+app:
+    pagination:
+      max_page_size: 100
