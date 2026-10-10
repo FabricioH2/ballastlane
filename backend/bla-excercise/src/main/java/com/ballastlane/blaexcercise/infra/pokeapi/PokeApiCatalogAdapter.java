@@ -2,6 +2,7 @@ package com.ballastlane.blaexcercise.infra.pokeapi;
 
 import com.ballastlane.blaexcercise.application.port.out.PokemonCatalog;
 import com.ballastlane.blaexcercise.domain.model.PageResult;
+import com.ballastlane.blaexcercise.domain.model.PokemoDetail;
 import com.ballastlane.blaexcercise.domain.model.PokemonSummary;
 import com.ballastlane.blaexcercise.infra.pokeapi.dto.PokemonListResponse;
 import com.ballastlane.blaexcercise.infra.pokeapi.dto.PokemonResponse;
@@ -10,6 +11,7 @@ import org.springframework.web.client.RestClient;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Output adapter: implements PokemonCatalog using the public PokeAPI.
@@ -40,6 +42,11 @@ public class PokeApiCatalogAdapter implements PokemonCatalog {
                 .toList();
 
         return new PageResult<>(items, page, size, list.count());
+    }
+
+    @Override
+    public Optional<PokemoDetail> findByIdOrName(String idOrName) {
+        return Optional.empty();
     }
 
     private PokemonSummary toSummary(String name) {

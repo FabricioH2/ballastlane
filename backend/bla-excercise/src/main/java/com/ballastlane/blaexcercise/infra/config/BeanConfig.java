@@ -26,7 +26,7 @@ public class BeanConfig {
     }
 
     @Bean
-    ListPokemonService listPokemonUseCase(PokemonCatalog pokemonCatalog,
+    ListPokemonService listPokemonService(PokemonCatalog pokemonCatalog,
                                           PaginationProperties paginationProperties) {
         return new ListPokemonServiceImpl(pokemonCatalog, paginationProperties.maxPageSize());
     }
