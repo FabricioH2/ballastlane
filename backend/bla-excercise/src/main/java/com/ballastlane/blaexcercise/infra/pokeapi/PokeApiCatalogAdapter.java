@@ -15,14 +15,14 @@ import java.util.List;
  * Output adapter: implements PokemonCatalog using the public PokeAPI.
  * It is the only class that knows the PokeAPI format; it translates it into domain models.
  */
-public class PokeApiCatalog implements PokemonCatalog {
+public class PokeApiCatalogAdapter implements PokemonCatalog {
 
     private static final String ENGLISH = "en";
     private static final double HECTOGRAMS_PER_KILOGRAM = 10.0;
 
     private final RestClient restClient;
 
-    public PokeApiCatalog(RestClient restClient) {
+    public PokeApiCatalogAdapter(RestClient restClient) {
         this.restClient = restClient;
     }
 

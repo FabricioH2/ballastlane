@@ -29,14 +29,14 @@ class PokeApiCatalogTest {
             .options(wireMockConfig().dynamicPort())
             .build();
 
-    private PokeApiCatalog catalog;
+    private PokeApiCatalogAdapter catalog;
 
     @BeforeEach
     void setUp() {
         RestClient restClient = RestClient.builder()
                 .baseUrl(pokeApi.getRuntimeInfo().getHttpBaseUrl())
                 .build();
-        catalog = new PokeApiCatalog(restClient);
+        catalog = new PokeApiCatalogAdapter(restClient);
     }
 
     @Test

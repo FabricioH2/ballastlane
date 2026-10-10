@@ -1,6 +1,6 @@
 package com.ballastlane.blaexcercise.application.service;
 
-import com.ballastlane.blaexcercise.application.port.in.ListPokemonUseCase;
+import com.ballastlane.blaexcercise.application.port.in.ListPokemonService;
 import com.ballastlane.blaexcercise.application.port.out.PokemonCatalog;
 import com.ballastlane.blaexcercise.domain.exception.InvalidPaginationException;
 import com.ballastlane.blaexcercise.domain.model.PageResult;
@@ -10,13 +10,13 @@ import com.ballastlane.blaexcercise.domain.model.PokemonSummary;
  *
  * It is registered as a bean from infrastructure configuration.
  */
-public class ListPokemonService implements ListPokemonUseCase {
+public class ListPokemonServiceImpl implements ListPokemonService {
 
 
     private final PokemonCatalog catalog;
     private final int maxPageSize;
 
-    public ListPokemonService(PokemonCatalog catalog, int maxPageSize) {
+    public ListPokemonServiceImpl(PokemonCatalog catalog, int maxPageSize) {
         if (maxPageSize < 1) {
             throw new IllegalArgumentException("maxPageSize must be >= 1");
         }

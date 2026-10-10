@@ -6,6 +6,6 @@ import com.ballastlane.blaexcercise.domain.model.PokemonSummary;
 /**
  * Input port : list Pokemon with pagination.
  */
-public interface ListPokemonUseCase {
+public interface ListPokemonService {
     PageResult<PokemonSummary> list(int page, int size);
 }
