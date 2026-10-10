@@ -1,9 +1,9 @@
 package com.ballastlane.blaexcercise.application.port.in;
 
-import com.ballastlane.blaexcercise.domain.model.PokemoDetail;
+import com.ballastlane.blaexcercise.domain.model.PokemonDetail;
 
 public interface PokemonDetailService {
 
-    PokemoDetail getDetail(String idOrName);
+    PokemonDetail getDetail(String idOrName);
 
 }

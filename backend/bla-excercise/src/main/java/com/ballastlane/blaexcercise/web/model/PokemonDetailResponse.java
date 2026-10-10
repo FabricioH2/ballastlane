@@ -1,6 +1,6 @@
 package com.ballastlane.blaexcercise.web.model;
 
-import com.ballastlane.blaexcercise.domain.model.PokemoDetail;
+import com.ballastlane.blaexcercise.domain.model.PokemonDetail;
 import com.ballastlane.blaexcercise.domain.model.Stat;
 
 import java.util.List;
@@ -19,7 +19,7 @@ public record PokemonDetailResponse(int id,
         }
     }
 
-    public static PokemonDetailResponse from(PokemoDetail detail) {
+    public static PokemonDetailResponse from(PokemonDetail detail) {
         return new PokemonDetailResponse(
                 detail.id(),
                 detail.name(),

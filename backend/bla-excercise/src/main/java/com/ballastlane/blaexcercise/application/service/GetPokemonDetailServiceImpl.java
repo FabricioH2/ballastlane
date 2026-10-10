@@ -4,7 +4,7 @@ import com.ballastlane.blaexcercise.application.port.in.PokemonDetailService;
 import com.ballastlane.blaexcercise.application.port.out.PokemonCatalog;
 import com.ballastlane.blaexcercise.domain.exception.InvalidPokemonIdentifierException;
 import com.ballastlane.blaexcercise.domain.exception.PokemonNotFoundException;
-import com.ballastlane.blaexcercise.domain.model.PokemoDetail;
+import com.ballastlane.blaexcercise.domain.model.PokemonDetail;
 
 import java.util.Locale;
 
@@ -17,7 +17,7 @@ public class GetPokemonDetailServiceImpl implements PokemonDetailService {
     }
 
     @Override
-    public PokemoDetail getDetail(String idOrName) {
+    public PokemonDetail getDetail(String idOrName) {
         if (idOrName == null || idOrName.isBlank()) {
             throw new InvalidPokemonIdentifierException("Pokemon id or name must not be blank");
         }

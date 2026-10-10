@@ -1,6 +1,14 @@
 spring:
   application:
     name: bla-excercise
+  cache:
+    cache-names:
+      - pokeapi-pokemon-pages
+      - pokeapi-pokemon
+      - pokeapi-species
+      - pokeapi-evolution-chains
+    caffeine:
+      spec: maximumSize=2000,expireAfterWrite=24h
 
 app:
   pagination:

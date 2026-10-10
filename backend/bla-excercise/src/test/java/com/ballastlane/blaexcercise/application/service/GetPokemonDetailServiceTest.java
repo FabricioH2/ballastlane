@@ -3,7 +3,7 @@ package com.ballastlane.blaexcercise.application.service;
 import com.ballastlane.blaexcercise.application.port.out.PokemonCatalog;
 import com.ballastlane.blaexcercise.domain.exception.InvalidPokemonIdentifierException;
 import com.ballastlane.blaexcercise.domain.exception.PokemonNotFoundException;
-import com.ballastlane.blaexcercise.domain.model.PokemoDetail;
+import com.ballastlane.blaexcercise.domain.model.PokemonDetail;
 import com.ballastlane.blaexcercise.domain.model.Stat;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +19,7 @@ import static org.mockito.Mockito.when;
 
 public class GetPokemonDetailServiceTest {
 
-    private static final PokemoDetail BULBASAUR = new PokemoDetail(
+    private static final PokemonDetail BULBASAUR = new PokemonDetail(
             1,
             "bulbasaur",
             "https://img/1.png",

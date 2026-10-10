@@ -6,7 +6,7 @@ import com.ballastlane.blaexcercise.domain.exception.InvalidPaginationException;
 import com.ballastlane.blaexcercise.domain.exception.InvalidPokemonIdentifierException;
 import com.ballastlane.blaexcercise.domain.exception.PokemonNotFoundException;
 import com.ballastlane.blaexcercise.domain.model.PageResult;
-import com.ballastlane.blaexcercise.domain.model.PokemoDetail;
+import com.ballastlane.blaexcercise.domain.model.PokemonDetail;
 import com.ballastlane.blaexcercise.domain.model.PokemonSummary;
 import com.ballastlane.blaexcercise.domain.model.Stat;
 import com.ballastlane.blaexcercise.infra.security.SecurityConfig;
@@ -66,7 +66,7 @@ class PokemonControllerTest {
 
     @Test
     void returnsPokemonDetail() throws Exception {
-        var bulbasaur = new PokemoDetail(
+        var bulbasaur = new PokemonDetail(
                 1,
                 "bulbasaur",
                 "https://img/official-artwork/1.png",

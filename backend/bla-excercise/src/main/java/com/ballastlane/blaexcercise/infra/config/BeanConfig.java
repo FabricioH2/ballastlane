@@ -6,6 +6,7 @@ import com.ballastlane.blaexcercise.application.port.out.PokemonCatalog;
 import com.ballastlane.blaexcercise.application.service.GetPokemonDetailServiceImpl;
 import com.ballastlane.blaexcercise.application.service.ListPokemonServiceImpl;
 import com.ballastlane.blaexcercise.infra.pokeapi.PokeApiCatalogAdapter;
+import com.ballastlane.blaexcercise.infra.pokeapi.PokeApiClient;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,8 +24,13 @@ public class BeanConfig {
     }
 
     @Bean
-    PokemonCatalog pokemonCatalog(RestClient pokeApiRestClient) {
-        return new PokeApiCatalogAdapter(pokeApiRestClient);
+    PokeApiClient pokeApiClient(RestClient pokeApiRestClient) {
+        return new PokeApiClient(pokeApiRestClient);
+    }
+
+    @Bean
+    PokemonCatalog pokemonCatalog(PokeApiClient pokeApiClient) {
+        return new PokeApiCatalogAdapter(pokeApiClient);
     }
 
     @Bean

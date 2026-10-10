@@ -1,7 +1,7 @@
 package com.ballastlane.blaexcercise.infra.pokeapi;
 
 import com.ballastlane.blaexcercise.domain.model.PageResult;
-import com.ballastlane.blaexcercise.domain.model.PokemoDetail;
+import com.ballastlane.blaexcercise.domain.model.PokemonDetail;
 import com.ballastlane.blaexcercise.domain.model.PokemonSummary;
 import com.ballastlane.blaexcercise.domain.model.Stat;
 import com.ballastlane.blaexcercise.infra.pokeapi.dto.EvolutionChainResponse;
@@ -42,7 +42,7 @@ class PokeApiCatalogTest {
         RestClient restClient = RestClient.builder()
                 .baseUrl(pokeApi.getRuntimeInfo().getHttpBaseUrl())
                 .build();
-        catalog = new PokeApiCatalogAdapter(restClient);
+        catalog = new PokeApiCatalogAdapter(new PokeApiClient(restClient));
     }
 
     @Test
@@ -89,7 +89,7 @@ class PokeApiCatalogTest {
     }
 
     @Test
-    void mapsPokeApiResponsesToPokemoDetail() {
+    void mapsPokeApiResponsesToPokemonDetail() {
         pokeApi.stubFor(get(urlPathEqualTo("/pokemon/bulbasaur"))
                 .willReturn(okJson(fixture("pokemon-bulbasaur.json"))));
         pokeApi.stubFor(get(urlPathEqualTo("/pokemon-species/1"))
@@ -97,9 +97,9 @@ class PokeApiCatalogTest {
         pokeApi.stubFor(get(urlPathEqualTo("/evolution-chain/1"))
                 .willReturn(okJson(fixture("evolution-chain-1.json"))));
 
-        Optional<PokemoDetail> result = catalog.findByIdOrName("bulbasaur");
+        Optional<PokemonDetail> result = catalog.findByIdOrName("bulbasaur");
 
-        assertThat(result).contains(new PokemoDetail(
+        assertThat(result).contains(new PokemonDetail(
                 1,
                 "bulbasaur",
                 "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png",

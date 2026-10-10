@@ -2,7 +2,7 @@ package com.ballastlane.blaexcercise.infra.pokeapi;
 
 import com.ballastlane.blaexcercise.application.port.out.PokemonCatalog;
 import com.ballastlane.blaexcercise.domain.model.PageResult;
-import com.ballastlane.blaexcercise.domain.model.PokemoDetail;
+import com.ballastlane.blaexcercise.domain.model.PokemonDetail;
 import com.ballastlane.blaexcercise.domain.model.PokemonSummary;
 import com.ballastlane.blaexcercise.domain.model.Stat;
 import com.ballastlane.blaexcercise.infra.pokeapi.dto.EvolutionChainResponse;
@@ -10,7 +10,6 @@ import com.ballastlane.blaexcercise.infra.pokeapi.dto.PokemonListResponse;
 import com.ballastlane.blaexcercise.infra.pokeapi.dto.PokemonResponse;
 import com.ballastlane.blaexcercise.infra.pokeapi.dto.PokemonSpeciesResponse;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestClient;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -19,27 +18,24 @@ import java.util.Optional;
 
 /**
  * Output adapter: implements PokemonCatalog using the public PokeAPI.
- * It is the only class that knows the PokeAPI format; it translates it into domain models.
+ * It translates PokeAPI responses into domain models; the HTTP calls live in PokeApiClient.
  */
 public class PokeApiCatalogAdapter implements PokemonCatalog {
 
     private static final String ENGLISH = "en";
     private static final double HECTOGRAMS_PER_KILOGRAM = 10.0;
 
-    private final RestClient restClient;
+    private final PokeApiClient pokeApi;
 
-    public PokeApiCatalogAdapter(RestClient restClient) {
-        this.restClient = restClient;
+    public PokeApiCatalogAdapter(PokeApiClient pokeApi) {
+        this.pokeApi = pokeApi;
     }
 
     @Override
     public PageResult<PokemonSummary> findAll(int page, int size) {
         int offset = page * size;
 
-        PokemonListResponse list = restClient.get()
-                .uri("/pokemon?offset={offset}&limit={limit}", offset, size)
-                .retrieve()
-                .body(PokemonListResponse.class);
+        PokemonListResponse list = pokeApi.getPokemonPage(offset, size);
 
         List<PokemonSummary> items = list.results().stream()
                 .map(resource -> toSummary(resource.name()))
@@ -49,8 +45,8 @@ public class PokeApiCatalogAdapter implements PokemonCatalog {
     }
 
     private PokemonSummary toSummary(String name) {
-        PokemonResponse pokemon = fetchPokemon(name);
-        PokemonSpeciesResponse species = fetchSpecies(extractId(pokemon.species().url()));
+        PokemonResponse pokemon = pokeApi.getPokemon(name);
+        PokemonSpeciesResponse species = pokeApi.getSpecies(extractId(pokemon.species().url()));
 
         return new PokemonSummary(
                 pokemon.id(),
@@ -61,25 +57,24 @@ public class PokeApiCatalogAdapter implements PokemonCatalog {
                 abilityNames(pokemon));
     }
 
-
     @Override
-    public Optional<PokemoDetail> findByIdOrName(String idOrName) {
+    public Optional<PokemonDetail> findByIdOrName(String idOrName) {
         return fetchPokemonIfExists(idOrName).map(this::toDetail);
     }
 
     private Optional<PokemonResponse> fetchPokemonIfExists(String idOrName) {
         try {
-            return Optional.ofNullable(fetchPokemon(idOrName));
+            return Optional.ofNullable(pokeApi.getPokemon(idOrName));
         } catch (HttpClientErrorException.NotFound e) {
             return Optional.empty();
         }
     }
 
-    private PokemoDetail toDetail(PokemonResponse pokemon) {
-        PokemonSpeciesResponse species = fetchSpecies(extractId(pokemon.species().url()));
-        EvolutionChainResponse evolution = fetchEvolutionChain(extractId(species.evolutionChain().url()));
+    private PokemonDetail toDetail(PokemonResponse pokemon) {
+        PokemonSpeciesResponse species = pokeApi.getSpecies(extractId(pokemon.species().url()));
+        EvolutionChainResponse evolution = pokeApi.getEvolutionChain(extractId(species.evolutionChain().url()));
 
-        return new PokemoDetail(
+        return new PokemonDetail(
                 pokemon.id(),
                 pokemon.name(),
                 officialArtwork(pokemon),
@@ -87,29 +82,6 @@ public class PokeApiCatalogAdapter implements PokemonCatalog {
                 englishDescription(species),
                 evolutionNames(evolution.chain()));
     }
-
-
-    private PokemonResponse fetchPokemon(String idOrName) {
-        return restClient.get()
-                .uri("/pokemon/{idOrName}", idOrName)
-                .retrieve()
-                .body(PokemonResponse.class);
-    }
-
-    private PokemonSpeciesResponse fetchSpecies(int id) {
-        return restClient.get()
-                .uri("/pokemon-species/{id}", id)
-                .retrieve()
-                .body(PokemonSpeciesResponse.class);
-    }
-
-    private EvolutionChainResponse fetchEvolutionChain(int id) {
-        return restClient.get()
-                .uri("/evolution-chain/{id}", id)
-                .retrieve()
-                .body(EvolutionChainResponse.class);
-    }
-
 
     private static String englishCategory(PokemonSpeciesResponse species) {
         return species.genera().stream()
