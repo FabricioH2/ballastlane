@@ -1,6 +1,7 @@
 package com.ballastlane.blaexcercise.infra.pokeapi;
 
 import com.ballastlane.blaexcercise.application.port.out.PokemonCatalog;
+import com.ballastlane.blaexcercise.domain.exception.PokemonCatalogUnavailableException;
 import com.ballastlane.blaexcercise.domain.model.PageResult;
 import com.ballastlane.blaexcercise.domain.model.PokemonDetail;
 import com.ballastlane.blaexcercise.domain.model.PokemonSummary;
@@ -10,6 +11,7 @@ import com.ballastlane.blaexcercise.infra.pokeapi.dto.PokemonListResponse;
 import com.ballastlane.blaexcercise.infra.pokeapi.dto.PokemonResponse;
 import com.ballastlane.blaexcercise.infra.pokeapi.dto.PokemonSpeciesResponse;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -24,6 +26,7 @@ public class PokeApiCatalogAdapter implements PokemonCatalog {
 
     private static final String ENGLISH = "en";
     private static final double HECTOGRAMS_PER_KILOGRAM = 10.0;
+    private static final String UNAVAILABLE_MESSAGE = "Pokemon catalog is temporarily unavailable";
 
     private final PokeApiClient pokeApi;
 
@@ -33,15 +36,21 @@ public class PokeApiCatalogAdapter implements PokemonCatalog {
 
     @Override
     public PageResult<PokemonSummary> findAll(int page, int size) {
-        int offset = page * size;
+        try{
+            int offset = page * size;
 
-        PokemonListResponse list = pokeApi.getPokemonPage(offset, size);
+            PokemonListResponse list = pokeApi.getPokemonPage(offset, size);
 
-        List<PokemonSummary> items = list.results().stream()
-                .map(resource -> toSummary(resource.name()))
-                .toList();
+            List<PokemonSummary> items = list.results().stream()
+                    .map(resource -> toSummary(resource.name()))
+                    .toList();
 
-        return new PageResult<>(items, page, size, list.count());
+            return new PageResult<>(items, page, size, list.count());
+        }
+        catch(RestClientException e){
+            throw new PokemonCatalogUnavailableException(UNAVAILABLE_MESSAGE, e);
+        }
+
     }
 
     private PokemonSummary toSummary(String name) {
@@ -59,7 +68,12 @@ public class PokeApiCatalogAdapter implements PokemonCatalog {
 
     @Override
     public Optional<PokemonDetail> findByIdOrName(String idOrName) {
-        return fetchPokemonIfExists(idOrName).map(this::toDetail);
+        try{
+            return fetchPokemonIfExists(idOrName).map(this::toDetail);
+
+        }catch(RestClientException e){
+            throw new PokemonCatalogUnavailableException(UNAVAILABLE_MESSAGE, e);
+        }
     }
 
     private Optional<PokemonResponse> fetchPokemonIfExists(String idOrName) {

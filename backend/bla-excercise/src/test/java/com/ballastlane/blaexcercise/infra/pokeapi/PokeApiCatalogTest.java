@@ -1,5 +1,6 @@
 package com.ballastlane.blaexcercise.infra.pokeapi;
 
+import com.ballastlane.blaexcercise.domain.exception.PokemonCatalogUnavailableException;
 import com.ballastlane.blaexcercise.domain.model.PageResult;
 import com.ballastlane.blaexcercise.domain.model.PokemonDetail;
 import com.ballastlane.blaexcercise.domain.model.PokemonSummary;
@@ -16,17 +17,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.notFound;
-import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 class PokeApiCatalogTest {
 
@@ -39,9 +37,10 @@ class PokeApiCatalogTest {
 
     @BeforeEach
     void setUp() {
-        RestClient restClient = RestClient.builder()
-                .baseUrl(pokeApi.getRuntimeInfo().getHttpBaseUrl())
-                .build();
+        RestClient restClient = PokeApiClient.createRestClient(
+                pokeApi.getRuntimeInfo().getHttpBaseUrl(),
+                Duration.ofSeconds(1),
+                Duration.ofMillis(500));
         catalog = new PokeApiCatalogAdapter(new PokeApiClient(restClient));
     }
 
@@ -139,5 +138,23 @@ class PokeApiCatalogTest {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    @Test
+    void throwsCatalogUnavailableWhenPokeApiFails() {
+        pokeApi.stubFor(get(urlPathEqualTo("/pokemon"))
+                .willReturn(serverError()));
+
+        assertThatThrownBy(() -> catalog.findAll(0, 20))
+                .isInstanceOf(PokemonCatalogUnavailableException.class);
+    }
+
+    @Test
+    void throwsCatalogUnavailableWhenPokeApiIsTooSlow() {
+        pokeApi.stubFor(get(urlPathEqualTo("/pokemon/bulbasaur"))
+                .willReturn(okJson(fixture("pokemon-bulbasaur.json")).withFixedDelay(2_000)));
+
+        assertThatThrownBy(() -> catalog.findByIdOrName("bulbasaur"))
+                .isInstanceOf(PokemonCatalogUnavailableException.class);
     }
 }

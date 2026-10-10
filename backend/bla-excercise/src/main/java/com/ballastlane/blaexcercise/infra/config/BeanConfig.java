@@ -24,8 +24,11 @@ public class BeanConfig {
     }
 
     @Bean
-    PokeApiClient pokeApiClient(RestClient pokeApiRestClient) {
-        return new PokeApiClient(pokeApiRestClient);
+    RestClient pokeApiClient(PokemonApiProperties pokeApiProperties) {
+        return PokeApiClient.createRestClient(
+                pokeApiProperties.baseUrl(),
+                pokeApiProperties.connectTimeOut(),
+                pokeApiProperties.readTimeout());
     }
 
     @Bean

@@ -5,7 +5,11 @@ import com.ballastlane.blaexcercise.infra.pokeapi.dto.PokemonListResponse;
 import com.ballastlane.blaexcercise.infra.pokeapi.dto.PokemonResponse;
 import com.ballastlane.blaexcercise.infra.pokeapi.dto.PokemonSpeciesResponse;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
+
+import java.net.http.HttpClient;
+import java.time.Duration;
 
 /**
  * HTTP client for the PokeAPI: one method per endpoint, each response cached.
@@ -56,5 +60,18 @@ public class PokeApiClient {
                 .uri("/evolution-chain/{id}", id)
                 .retrieve()
                 .body(EvolutionChainResponse.class);
+    }
+
+    public static RestClient createRestClient(String baseUrl, Duration connectTimeout, Duration readTimeout) {
+        HttpClient httpClient = HttpClient.newBuilder()
+                .connectTimeout(connectTimeout)
+                .build();
+        JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory(httpClient);
+        requestFactory.setReadTimeout(readTimeout);
+
+        return RestClient.builder()
+                .baseUrl(baseUrl)
+                .requestFactory(requestFactory)
+                .build();
     }
 }

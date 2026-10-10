@@ -15,3 +15,5 @@ app:
     max-page-size: 100
   pokeapi:
     base-url: https://pokeapi.co/api/v2
+    connect-timeout: 3s
+    read-timeout: 5s

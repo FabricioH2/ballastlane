@@ -4,6 +4,7 @@ import com.ballastlane.blaexcercise.application.port.in.ListPokemonService;
 import com.ballastlane.blaexcercise.application.port.in.PokemonDetailService;
 import com.ballastlane.blaexcercise.domain.exception.InvalidPaginationException;
 import com.ballastlane.blaexcercise.domain.exception.InvalidPokemonIdentifierException;
+import com.ballastlane.blaexcercise.domain.exception.PokemonCatalogUnavailableException;
 import com.ballastlane.blaexcercise.domain.exception.PokemonNotFoundException;
 import com.ballastlane.blaexcercise.domain.model.PageResult;
 import com.ballastlane.blaexcercise.domain.model.PokemonDetail;
@@ -105,5 +106,33 @@ class PokemonControllerTest {
         mockMvc.perform(get("/api/pokemon/{idOrName}", "invalid"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.title").value("Invalid pokemon identifier"));
+    }
+
+    @Test
+    void returns503WhenCatalogIsUnavailable() throws Exception {
+        when(listPokemonService.list(0, 20))
+                .thenThrow(new PokemonCatalogUnavailableException(
+                        "Pokemon catalog is temporarily unavailable", new RuntimeException("timeout")));
+
+        mockMvc.perform(get("/api/pokemon"))
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.title").value("Pokemon catalog unavailable"))
+                .andExpect(jsonPath("$.detail").value("Pokemon catalog is temporarily unavailable"));
+    }
+
+    @Test
+    void returns500WithoutInternalDetailsOnUnexpectedError() throws Exception {
+        when(pokemonDetailService.getDetail("bulbasaur"))
+                .thenThrow(new IllegalStateException("internal secret"));
+
+        mockMvc.perform(get("/api/pokemon/{idOrName}", "bulbasaur"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.detail").value("An unexpected error occurred"));
+    }
+
+    @Test
+    void returns400WhenPageIsNotANumber() throws Exception {
+        mockMvc.perform(get("/api/pokemon").param("page", "abc"))
+                .andExpect(status().isBadRequest());
     }
 }
