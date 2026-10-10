@@ -2,6 +2,7 @@ package com.ballastlane.blaexcercise.web.errors;
 
 import com.ballastlane.blaexcercise.domain.exception.InvalidPaginationException;
 import com.ballastlane.blaexcercise.domain.exception.InvalidPokemonIdentifierException;
+import com.ballastlane.blaexcercise.domain.exception.PokemonAlreadySyncedException;
 import com.ballastlane.blaexcercise.domain.exception.PokemonCatalogUnavailableException;
 import com.ballastlane.blaexcercise.domain.exception.PokemonNotFoundException;
 import org.slf4j.Logger;
@@ -17,7 +18,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-
     @ExceptionHandler(InvalidPaginationException.class)
     public ProblemDetail handleInvalidPagination(InvalidPaginationException ex) {
         return problem(HttpStatus.BAD_REQUEST, "Invalid pagination", ex.getMessage());
@@ -31,6 +31,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(PokemonNotFoundException.class)
     public ProblemDetail handlePokemonNotFound(PokemonNotFoundException ex) {
         return problem(HttpStatus.NOT_FOUND, "Pokemon not found", ex.getMessage());
+    }
+
+    @ExceptionHandler(PokemonAlreadySyncedException.class)
+    public ProblemDetail handlePokemonAlreadySynced(PokemonAlreadySyncedException ex) {
+        return problem(HttpStatus.CONFLICT, "Pokemon already synced", ex.getMessage());
     }
 
     @ExceptionHandler(PokemonCatalogUnavailableException.class)

@@ -1,6 +1,10 @@
 spring:
   application:
     name: bla-excercise
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
   cache:
     cache-names:
       - pokeapi-pokemon-pages

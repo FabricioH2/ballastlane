@@ -21,6 +21,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET, "/api/pokemon/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
+                        // TODO(auth): temporary, until JWT login exists. Remove this line in the auth step.
+                        .requestMatchers("/api/local-pokemon/**").permitAll()
                         .anyRequest().authenticated());
         return http.build();
     }
