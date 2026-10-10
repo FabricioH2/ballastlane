@@ -3,6 +3,7 @@ package com.ballastlane.blaexcercise.web.errors;
 import com.ballastlane.blaexcercise.domain.exception.InvalidCredentialsException;
 import com.ballastlane.blaexcercise.domain.exception.InvalidPaginationException;
 import com.ballastlane.blaexcercise.domain.exception.InvalidPokemonIdentifierException;
+import com.ballastlane.blaexcercise.domain.exception.LocalPokemonNotFoundException;
 import com.ballastlane.blaexcercise.domain.exception.PokemonAlreadySyncedException;
 import com.ballastlane.blaexcercise.domain.exception.PokemonCatalogUnavailableException;
 import com.ballastlane.blaexcercise.domain.exception.PokemonNotFoundException;
@@ -41,6 +42,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(PokemonNotFoundException.class)
     public ProblemDetail handlePokemonNotFound(PokemonNotFoundException ex) {
         return problem(HttpStatus.NOT_FOUND, "Pokemon not found", ex.getMessage());
+    }
+
+    @ExceptionHandler(LocalPokemonNotFoundException.class)
+    public ProblemDetail handleLocalPokemonNotFound(LocalPokemonNotFoundException ex) {
+        return problem(HttpStatus.NOT_FOUND, "Local pokemon not found", ex.getMessage());
     }
 
     @ExceptionHandler(PokemonAlreadySyncedException.class)

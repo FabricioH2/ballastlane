@@ -1,6 +1,7 @@
 package com.ballastlane.blaexcercise.infra.config;
 
 import com.ballastlane.blaexcercise.application.port.in.ListPokemonService;
+import com.ballastlane.blaexcercise.application.port.in.LocalPokemonService;
 import com.ballastlane.blaexcercise.application.port.in.LoginService;
 import com.ballastlane.blaexcercise.application.port.in.PokemonDetailService;
 import com.ballastlane.blaexcercise.application.port.in.RegisterUserService;
@@ -12,6 +13,7 @@ import com.ballastlane.blaexcercise.application.port.out.TokenIssuer;
 import com.ballastlane.blaexcercise.application.port.out.UserRepository;
 import com.ballastlane.blaexcercise.application.service.GetPokemonDetailServiceImpl;
 import com.ballastlane.blaexcercise.application.service.ListPokemonServiceImpl;
+import com.ballastlane.blaexcercise.application.service.LocalPokemonServiceImpl;
 import com.ballastlane.blaexcercise.application.service.LoginServiceImpl;
 import com.ballastlane.blaexcercise.application.service.RegisterUserServiceImpl;
 import com.ballastlane.blaexcercise.application.service.SyncPokemonServiceImpl;
@@ -96,6 +98,12 @@ public class BeanConfig {
     SyncPokemonService syncPokemonService(PokemonDetailService pokemonDetailService,
                                           LocalPokemonRepository localPokemonRepository) {
         return new SyncPokemonServiceImpl(pokemonDetailService, localPokemonRepository);
+    }
+
+    @Bean
+    LocalPokemonService localPokemonService(LocalPokemonRepository localPokemonRepository,
+                                            PaginationProperties paginationProperties) {
+        return new LocalPokemonServiceImpl(localPokemonRepository, paginationProperties.maxPageSize());
     }
 
     @Bean

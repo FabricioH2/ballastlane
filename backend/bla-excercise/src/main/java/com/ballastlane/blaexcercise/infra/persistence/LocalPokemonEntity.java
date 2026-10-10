@@ -12,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.BatchSize;
 
 import java.time.Instant;
 import java.util.HashSet;
@@ -48,6 +49,7 @@ public class LocalPokemonEntity {
     private String region;
 
     @ElementCollection(fetch = FetchType.EAGER)
+    @BatchSize(size = 100) // a page of 20 Pokemon loads all their tags in 1 query, not 20 (the "N+1" problem)
     @CollectionTable(name = "local_pokemon_tag", joinColumns = @JoinColumn(name = "local_pokemon_id"))
     @Column(name = "tag", nullable = false, length = 50)
     private Set<String> tags = new HashSet<>();

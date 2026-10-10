@@ -2,36 +2,26 @@ package com.ballastlane.blaexcercise.application.service;
 
 import com.ballastlane.blaexcercise.application.port.in.ListPokemonService;
 import com.ballastlane.blaexcercise.application.port.out.PokemonCatalog;
-import com.ballastlane.blaexcercise.domain.exception.InvalidPaginationException;
 import com.ballastlane.blaexcercise.domain.model.PageResult;
 import com.ballastlane.blaexcercise.domain.model.PokemonSummary;
 
 /**
- *
+ * US01: list Pokemon from the PokeAPI catalog, with pagination.
  * It is registered as a bean from infrastructure configuration.
  */
 public class ListPokemonServiceImpl implements ListPokemonService {
-
 
     private final PokemonCatalog catalog;
     private final int maxPageSize;
 
     public ListPokemonServiceImpl(PokemonCatalog catalog, int maxPageSize) {
-        if (maxPageSize < 1) {
-            throw new IllegalArgumentException("maxPageSize must be >= 1");
-        }
         this.catalog = catalog;
-        this.maxPageSize = maxPageSize;
+        this.maxPageSize = PaginationRules.requireValidMaxPageSize(maxPageSize);
     }
 
     @Override
     public PageResult<PokemonSummary> list(int page, int size) {
-        if (page < 0) {
-            throw new InvalidPaginationException("Page must be >= 0");
-        }
-        if (size < 1 || size > maxPageSize) {
-            throw new InvalidPaginationException("Size must be between 1 and " + maxPageSize);
-        }
+        PaginationRules.validate(page, size, maxPageSize);
         return catalog.findAll(page, size);
     }
 }
