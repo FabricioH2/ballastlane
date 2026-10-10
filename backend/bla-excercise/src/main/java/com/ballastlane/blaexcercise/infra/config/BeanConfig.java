@@ -4,6 +4,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableConfigurationProperties(PaginationProperties.class)
+@EnableConfigurationProperties({PaginationProperties.class, PokemonApiProperties.class})
 public class BeanConfig {
 }

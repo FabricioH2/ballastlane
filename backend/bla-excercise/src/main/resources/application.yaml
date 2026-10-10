@@ -3,5 +3,7 @@ spring:
     name: bla-excercise
 
 app:
-    pagination:
-      max_page_size: 100
+  pagination:
+    max-page-size: 100
+  pokeapi:
+    base-url: https://pokeapi.co/api/v2
