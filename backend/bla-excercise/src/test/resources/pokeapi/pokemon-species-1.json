@@ -6,5 +6,16 @@
     { "genus": "たねポケモン", "language": { "name": "ja-Hrkt", "url": "https://pokeapi.co/api/v2/language/1/" } },
     { "genus": "Seed Pokémon", "language": { "name": "en", "url": "https://pokeapi.co/api/v2/language/9/" } },
     { "genus": "Pokémon Graine", "language": { "name": "fr", "url": "https://pokeapi.co/api/v2/language/5/" } }
-  ]
+  ],
+  "flavor_text_entries": [
+    {
+      "flavor_text": "うまれたときから せなかに しょくぶつの タネが あって すこしずつ おおきく そだつ。",
+      "language": { "name": "ja-Hrkt", "url": "https://pokeapi.co/api/v2/language/1/" }
+    },
+    {
+      "flavor_text": "A strange seed was\nplanted on its\fback at birth.",
+      "language": { "name": "en", "url": "https://pokeapi.co/api/v2/language/9/" }
+    }
+  ],
+  "evolution_chain": { "url": "https://pokeapi.co/api/v2/evolution-chain/1/" }
 }

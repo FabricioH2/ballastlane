@@ -1,7 +1,11 @@
 package com.ballastlane.blaexcercise.infra.pokeapi;
 
 import com.ballastlane.blaexcercise.domain.model.PageResult;
+import com.ballastlane.blaexcercise.domain.model.PokemoDetail;
 import com.ballastlane.blaexcercise.domain.model.PokemonSummary;
+import com.ballastlane.blaexcercise.domain.model.Stat;
+import com.ballastlane.blaexcercise.infra.pokeapi.dto.EvolutionChainResponse;
+import com.ballastlane.blaexcercise.infra.pokeapi.dto.NamedApiResource;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,10 +17,12 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Optional;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.notFound;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
@@ -80,6 +86,48 @@ class PokeApiCatalogTest {
         assertThat(result.page()).isEqualTo(2);
         assertThat(result.size()).isEqualTo(20);
         assertThat(result.totalElements()).isEqualTo(1302);
+    }
+
+    @Test
+    void mapsPokeApiResponsesToPokemoDetail() {
+        pokeApi.stubFor(get(urlPathEqualTo("/pokemon/bulbasaur"))
+                .willReturn(okJson(fixture("pokemon-bulbasaur.json"))));
+        pokeApi.stubFor(get(urlPathEqualTo("/pokemon-species/1"))
+                .willReturn(okJson(fixture("pokemon-species-1.json"))));
+        pokeApi.stubFor(get(urlPathEqualTo("/evolution-chain/1"))
+                .willReturn(okJson(fixture("evolution-chain-1.json"))));
+
+        Optional<PokemoDetail> result = catalog.findByIdOrName("bulbasaur");
+
+        assertThat(result).contains(new PokemoDetail(
+                1,
+                "bulbasaur",
+                "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png",
+                List.of(new Stat("hp", 45), new Stat("attack", 49)),
+                "A strange seed was planted on its back at birth.",
+                List.of("bulbasaur", "ivysaur", "venusaur")));
+    }
+
+    @Test
+    void returnsEmptyWhenPokemonDoesNotExist() {
+        pokeApi.stubFor(get(urlPathEqualTo("/pokemon/missingno"))
+                .willReturn(notFound()));
+
+        assertThat(catalog.findByIdOrName("missingno")).isEmpty();
+    }
+
+    @Test
+    void flattensBranchingEvolutionChains() {
+        var eevee = link("eevee", link("vaporeon"), link("jolteon"), link("flareon"));
+
+        assertThat(PokeApiCatalogAdapter.evolutionNames(eevee))
+                .containsExactly("eevee", "vaporeon", "jolteon", "flareon");
+    }
+
+    private static EvolutionChainResponse.ChainLink link(String name, EvolutionChainResponse.ChainLink... next) {
+        return new EvolutionChainResponse.ChainLink(
+                new NamedApiResource(name, "https://pokeapi.co/api/v2/pokemon-species/"),
+                List.of(next));
     }
 
     private static String fixture(String name) {

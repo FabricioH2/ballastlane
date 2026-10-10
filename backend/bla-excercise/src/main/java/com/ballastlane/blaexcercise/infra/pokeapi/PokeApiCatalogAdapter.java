@@ -4,11 +4,15 @@ import com.ballastlane.blaexcercise.application.port.out.PokemonCatalog;
 import com.ballastlane.blaexcercise.domain.model.PageResult;
 import com.ballastlane.blaexcercise.domain.model.PokemoDetail;
 import com.ballastlane.blaexcercise.domain.model.PokemonSummary;
+import com.ballastlane.blaexcercise.domain.model.Stat;
+import com.ballastlane.blaexcercise.infra.pokeapi.dto.EvolutionChainResponse;
 import com.ballastlane.blaexcercise.infra.pokeapi.dto.PokemonListResponse;
 import com.ballastlane.blaexcercise.infra.pokeapi.dto.PokemonResponse;
 import com.ballastlane.blaexcercise.infra.pokeapi.dto.PokemonSpeciesResponse;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -44,11 +48,6 @@ public class PokeApiCatalogAdapter implements PokemonCatalog {
         return new PageResult<>(items, page, size, list.count());
     }
 
-    @Override
-    public Optional<PokemoDetail> findByIdOrName(String idOrName) {
-        return Optional.empty();
-    }
-
     private PokemonSummary toSummary(String name) {
         PokemonResponse pokemon = fetchPokemon(name);
         PokemonSpeciesResponse species = fetchSpecies(extractId(pokemon.species().url()));
@@ -62,9 +61,37 @@ public class PokeApiCatalogAdapter implements PokemonCatalog {
                 abilityNames(pokemon));
     }
 
-    private PokemonResponse fetchPokemon(String name) {
+
+    @Override
+    public Optional<PokemoDetail> findByIdOrName(String idOrName) {
+        return fetchPokemonIfExists(idOrName).map(this::toDetail);
+    }
+
+    private Optional<PokemonResponse> fetchPokemonIfExists(String idOrName) {
+        try {
+            return Optional.ofNullable(fetchPokemon(idOrName));
+        } catch (HttpClientErrorException.NotFound e) {
+            return Optional.empty();
+        }
+    }
+
+    private PokemoDetail toDetail(PokemonResponse pokemon) {
+        PokemonSpeciesResponse species = fetchSpecies(extractId(pokemon.species().url()));
+        EvolutionChainResponse evolution = fetchEvolutionChain(extractId(species.evolutionChain().url()));
+
+        return new PokemoDetail(
+                pokemon.id(),
+                pokemon.name(),
+                officialArtwork(pokemon),
+                stats(pokemon),
+                englishDescription(species),
+                evolutionNames(evolution.chain()));
+    }
+
+
+    private PokemonResponse fetchPokemon(String idOrName) {
         return restClient.get()
-                .uri("/pokemon/{name}", name)
+                .uri("/pokemon/{idOrName}", idOrName)
                 .retrieve()
                 .body(PokemonResponse.class);
     }
@@ -75,6 +102,14 @@ public class PokeApiCatalogAdapter implements PokemonCatalog {
                 .retrieve()
                 .body(PokemonSpeciesResponse.class);
     }
+
+    private EvolutionChainResponse fetchEvolutionChain(int id) {
+        return restClient.get()
+                .uri("/evolution-chain/{id}", id)
+                .retrieve()
+                .body(EvolutionChainResponse.class);
+    }
+
 
     private static String englishCategory(PokemonSpeciesResponse species) {
         return species.genera().stream()
@@ -89,6 +124,56 @@ public class PokeApiCatalogAdapter implements PokemonCatalog {
                 .sorted(Comparator.comparingInt(PokemonResponse.AbilitySlot::slot))
                 .map(abilitySlot -> abilitySlot.ability().name())
                 .toList();
+    }
+
+    private static String officialArtwork(PokemonResponse pokemon) {
+        PokemonResponse.Sprites sprites = pokemon.sprites();
+        return Optional.ofNullable(sprites.other())
+                .map(PokemonResponse.OtherSprites::officialArtwork)
+                .map(PokemonResponse.Artwork::frontDefault)
+                .orElse(sprites.frontDefault());
+    }
+
+    private static List<Stat> stats(PokemonResponse pokemon) {
+        return pokemon.stats().stream()
+                .map(entry -> new Stat(entry.stat().name(), entry.baseStat()))
+                .toList();
+    }
+
+    private static String englishDescription(PokemonSpeciesResponse species) {
+        return species.flavorTextEntries().stream()
+                .filter(entry -> ENGLISH.equals(entry.language().name()))
+                .map(PokemonSpeciesResponse.FlavorTextEntry::flavorText)
+                .map(PokeApiCatalogAdapter::cleanText)
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
+     * PokeAPI descriptions come from the games and contain line breaks (\n) and page breaks (\f).
+     */
+    private static String cleanText(String text) {
+        return text.replaceAll("\\s+", " ").trim();
+    }
+
+    /**
+     * Flattens the recursive chain: bulbasaur -> [ivysaur -> [venusaur]] becomes
+     * [bulbasaur, ivysaur, venusaur]. Branches (like Eevee) are visited in order.
+     */
+    static List<String> evolutionNames(EvolutionChainResponse.ChainLink chain) {
+        List<String> names = new ArrayList<>();
+        collectNames(chain, names);
+        return names;
+    }
+
+    private static void collectNames(EvolutionChainResponse.ChainLink link, List<String> names) {
+        names.add(link.species().name());
+        if (link.evolvesTo() == null) {
+            return;
+        }
+        for (EvolutionChainResponse.ChainLink next : link.evolvesTo()) {
+            collectNames(next, names);
+        }
     }
 
     /**

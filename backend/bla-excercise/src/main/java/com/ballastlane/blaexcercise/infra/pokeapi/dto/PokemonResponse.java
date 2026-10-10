@@ -16,14 +16,27 @@ public record PokemonResponse(
         int weight,
         Sprites sprites,
         List<AbilitySlot> abilities,
-        NamedApiResource species
+        NamedApiResource species,
+        List<StatEntry> stats
 ) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Sprites(@JsonProperty("front_default") String frontDefault) {
+    public record Sprites(@JsonProperty("front_default") String frontDefault, OtherSprites other) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record AbilitySlot(NamedApiResource ability, int slot) {
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record OtherSprites(@JsonProperty("official-artwork") Artwork officialArtwork) {
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record Artwork(@JsonProperty("front_default") String frontDefault) {
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record StatEntry(@JsonProperty("base_stat") int baseStat, NamedApiResource stat) {
     }
 }

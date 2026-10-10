@@ -1,7 +1,9 @@
 package com.ballastlane.blaexcercise.infra.config;
 
 import com.ballastlane.blaexcercise.application.port.in.ListPokemonService;
+import com.ballastlane.blaexcercise.application.port.in.PokemonDetailService;
 import com.ballastlane.blaexcercise.application.port.out.PokemonCatalog;
+import com.ballastlane.blaexcercise.application.service.GetPokemonDetailServiceImpl;
 import com.ballastlane.blaexcercise.application.service.ListPokemonServiceImpl;
 import com.ballastlane.blaexcercise.infra.pokeapi.PokeApiCatalogAdapter;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -29,5 +31,10 @@ public class BeanConfig {
     ListPokemonService listPokemonService(PokemonCatalog pokemonCatalog,
                                           PaginationProperties paginationProperties) {
         return new ListPokemonServiceImpl(pokemonCatalog, paginationProperties.maxPageSize());
+    }
+
+    @Bean
+    PokemonDetailService pokemonDetailService(PokemonCatalog pokemonCatalog) {
+        return new GetPokemonDetailServiceImpl(pokemonCatalog);
     }
 }

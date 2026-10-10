@@ -1,0 +1,24 @@
+{
+  "id": 1,
+  "baby_trigger_item": null,
+  "chain": {
+    "is_baby": false,
+    "species": { "name": "bulbasaur", "url": "https://pokeapi.co/api/v2/pokemon-species/1/" },
+    "evolution_details": [],
+    "evolves_to": [
+      {
+        "is_baby": false,
+        "species": { "name": "ivysaur", "url": "https://pokeapi.co/api/v2/pokemon-species/2/" },
+        "evolution_details": [ { "min_level": 16 } ],
+        "evolves_to": [
+          {
+            "is_baby": false,
+            "species": { "name": "venusaur", "url": "https://pokeapi.co/api/v2/pokemon-species/3/" },
+            "evolution_details": [ { "min_level": 32 } ],
+            "evolves_to": []
+          }
+        ]
+      }
+    ]
+  }
+}
