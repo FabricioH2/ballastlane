@@ -8,7 +8,7 @@ import java.time.Duration;
 @ConfigurationProperties(prefix = "app.pokeapi")
 public record PokemonApiProperties(
         String baseUrl,
-        @DefaultValue("3s") Duration connectTimeOut,
+        @DefaultValue("3s") Duration connectTimeout,
         @DefaultValue("5s") Duration readTimeout
-        ) {
+) {
 }
