@@ -21,3 +21,9 @@ app:
     base-url: https://pokeapi.co/api/v2
     connect-timeout: 3s
     read-timeout: 5s
+  jwt:
+    # Base64 key of at least 32 bytes, used to sign and check the tokens.
+    # The default value is only for local development: in Docker or production set JWT_SECRET.
+    # Generate a new one with: openssl rand -base64 32
+    secret: ${JWT_SECRET:u596qFT9z4O0BV6fICuW2/AaW8PcmDFHlpbVpoA0+Xs=}
+    expiration: 1h

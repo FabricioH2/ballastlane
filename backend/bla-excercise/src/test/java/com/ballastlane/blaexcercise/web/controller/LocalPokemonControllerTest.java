@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -18,6 +19,7 @@ import java.time.Instant;
 import java.util.Set;
 
 import static org.hamcrest.Matchers.endsWith;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -67,5 +69,13 @@ class LocalPokemonControllerTest {
 
         mockMvc.perform(post("/api/local-pokemon/sync/{idOrName}", "missingno"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithAnonymousUser // overrides the class-level @WithMockUser: nobody is logged in
+    void syncReturns401WithoutToken() throws Exception {
+        mockMvc.perform(post("/api/local-pokemon/sync/{idOrName}", "pikachu"))
+                .andExpect(status().isUnauthorized());
+        verifyNoInteractions(syncPokemonService);
     }
 }

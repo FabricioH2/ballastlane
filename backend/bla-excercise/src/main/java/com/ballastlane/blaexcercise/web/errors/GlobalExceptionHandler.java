@@ -1,17 +1,27 @@
 package com.ballastlane.blaexcercise.web.errors;
 
+import com.ballastlane.blaexcercise.domain.exception.InvalidCredentialsException;
 import com.ballastlane.blaexcercise.domain.exception.InvalidPaginationException;
 import com.ballastlane.blaexcercise.domain.exception.InvalidPokemonIdentifierException;
 import com.ballastlane.blaexcercise.domain.exception.PokemonAlreadySyncedException;
 import com.ballastlane.blaexcercise.domain.exception.PokemonCatalogUnavailableException;
 import com.ballastlane.blaexcercise.domain.exception.PokemonNotFoundException;
+import com.ballastlane.blaexcercise.domain.exception.UsernameAlreadyTakenException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
@@ -36,6 +46,34 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(PokemonAlreadySyncedException.class)
     public ProblemDetail handlePokemonAlreadySynced(PokemonAlreadySyncedException ex) {
         return problem(HttpStatus.CONFLICT, "Pokemon already synced", ex.getMessage());
+    }
+
+    @ExceptionHandler(UsernameAlreadyTakenException.class)
+    public ProblemDetail handleUsernameAlreadyTaken(UsernameAlreadyTakenException ex) {
+        return problem(HttpStatus.CONFLICT, "Username already taken", ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ProblemDetail handleInvalidCredentials(InvalidCredentialsException ex) {
+        return problem(HttpStatus.UNAUTHORIZED, "Invalid credentials", ex.getMessage());
+    }
+
+    /**
+     * @Valid failed on a request body. The default answer only says "Invalid request content",
+     * so we add which fields failed and why: {"errors": {"password": "size must be between 8 and 72"}}.
+     */
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+                                                                  HttpHeaders headers,
+                                                                  HttpStatusCode status,
+                                                                  WebRequest request) {
+        Map<String, String> errors = new LinkedHashMap<>();
+        ex.getBindingResult().getFieldErrors()
+                .forEach(error -> errors.putIfAbsent(error.getField(), error.getDefaultMessage()));
+
+        ProblemDetail problem = problem(HttpStatus.BAD_REQUEST, "Invalid request", "One or more fields are invalid");
+        problem.setProperty("errors", errors);
+        return ResponseEntity.badRequest().body(problem);
     }
 
     @ExceptionHandler(PokemonCatalogUnavailableException.class)
