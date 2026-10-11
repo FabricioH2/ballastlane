@@ -1,18 +1,19 @@
 # Pokédex – Ballast Lane Java Exercise
 *Presentation outline: what I built, how it is structured, and why*
 
-Suggested length: about 20 minutes, then the code review.
+Suggested length: about 25 minutes, then the code review.
 
 | # | Section | Time |
 |---|---|---|
 | 1 | The project in one minute | 1 min |
-| 2 | Requirements → implementation | 2 min |
-| 3 | Architecture | 5 min |
-| 4 | Design decisions and trade-offs | 4 min |
-| 5 | Live demo | 5 min |
-| 6 | Tests and quality | 2 min |
-| 7 | How I used generative AI | 2 min |
-| 8 | Limitations and next steps | 1 min |
+| 2 | How I approached it | 3 min |
+| 3 | Requirements → implementation | 2 min |
+| 4 | Architecture | 5 min |
+| 5 | Design decisions and trade-offs | 4 min |
+| 6 | Live demo | 5 min |
+| 7 | Tests and quality | 2 min |
+| 8 | How I used generative AI | 2 min |
+| 9 | Limitations and next steps | 1 min |
 
 ---
 
@@ -31,7 +32,63 @@ Suggested length: about 20 minutes, then the code review.
 
 ---
 
-## 2. Requirements → implementation
+## 2. How I approached it
+
+### Reading the brief
+
+The brief says the evaluation focuses on **Clean Architecture, TDD and code quality**. That set my priorities:
+
+- The backend gets most of the time. The frontend only has to cover every use case, as simply as possible.
+- I started with the four user stories and left the extras (cache, users, Docker) for when the core worked.
+- I wrote down the rules before writing code: dependencies point inward, the core has no Spring or JPA, and every use case starts with a failing test.
+
+### The order I followed
+
+1. **The core first, with no framework (US01).**
+   - My first commit is a test for the list use case, with the PokeAPI behind a port (`PokemonCatalog`) and replaced by a mock.
+   - That made me decide what the business needs (a page of summaries) before deciding how to get it.
+2. **Then outward, one adapter at a time.**
+   - First the PokeAPI adapter, tested with WireMock and real JSON responses.
+   - Then the controller with `@WebMvcTest`, and the error handler.
+   - Each layer was tested on its own before connecting it to the next.
+3. **US02 (detail).**
+   - The PokeAPI spreads one Pokémon over three endpoints, and the evolution chain is a recursive tree.
+   - I kept that complexity inside the adapter, so the domain only sees a flat `PokemonDetail`.
+4. **Making the external dependency safe before building on it.**
+   - Cache, timeouts and turning PokeAPI failures into `503`.
+   - Here a test that starts the whole application caught a missing bean that every unit test had missed. Since then I keep that test as a safety net.
+5. **US03 (saving locally).** I chose separate domain records and JPA entities, and Flyway for the schema. Concurrency was a question here: two syncs at the same time could both pass the "already exists?" check. A unique constraint answers it, and I translate the violation into `409`.
+6. **Authentication before US04.**
+   - Editing data had to be protected, so users and JWT came first.
+   - I used Spring Security's resource server instead of writing my own token filter: less code of mine in the most sensitive part.
+7. **US04 and the rest of the CRUD.**
+   - I chose `PUT` over `PATCH` because it is simpler to validate.
+   - I made sure the official data cannot change in two places: the domain method and the persistence adapter.
+8. **Frontend.**
+   - React + TypeScript, no router, and one file (`api.ts`) for every HTTP call.
+   - The types mirror the API's DTOs, so a renamed field shows up as a compile error.
+9. **Delivery.** Docker Compose with one command, demo data behind a profile, the README and the diagrams.
+
+### What changed along the way
+
+- **Problems that showed up only when running for real:**
+  - The `Docker/` folder worked on Windows but failed in Linux builds (case-sensitive paths).
+  - PostgreSQL 18 changed its volume path.
+  - A 500 ms timeout in a test was flaky on a busy machine.
+- **I moved from one-off fixes to tests that prevent the problem.** The full-application test and the WireMock tests with real JSON caught more real bugs than reading code did.
+- **Scope decisions I made on purpose:**
+  - The local collection is shared by all users.
+  - The frontend has no automated tests yet.
+  - Both are in section 9 with what I would do next.
+
+### What I would do differently
+
+- Add the full-application test and Docker from the first day, not at the end.
+- Write the frontend tests together with each screen, as I did with the backend.
+
+---
+
+## 3. Requirements → implementation
 
 | Requirement | How it is covered |
 |---|---|
@@ -48,7 +105,7 @@ Suggested length: about 20 minutes, then the code review.
 
 ---
 
-## 3. Architecture
+## 4. Architecture
 
 **Rule:** dependencies point inward. The business core (`domain` + `application`) does not import Spring, JPA or HTTP classes.
 
@@ -74,7 +131,7 @@ Suggested length: about 20 minutes, then the code review.
 
 ---
 
-## 4. Design decisions and trade-offs
+## 5. Design decisions and trade-offs
 
 | Decision | Why | Alternative considered |
 |---|---|---|
@@ -95,7 +152,7 @@ Suggested length: about 20 minutes, then the code review.
 
 ---
 
-## 5. Live demo (about 5 minutes)
+## 6. Live demo (about 5 minutes)
 
 1. **Start the stack.** Show that `docker compose up --build` is the only command, then sign in as `user` / `user`.
 2. **US01.** Browse the catalog and move between pages. Point out that the second visit to a page is instant (cache).
@@ -115,7 +172,7 @@ Suggested length: about 20 minutes, then the code review.
 
 ---
 
-## 6. Tests and quality
+## 7. Tests and quality
 
 | Level | Tools | What it proves |
 |---|---|---|
@@ -133,7 +190,7 @@ Suggested length: about 20 minutes, then the code review.
 
 ---
 
-## 7. How I used generative AI
+## 8. How I used generative AI
 
 - I used **Claude** as a pair programmer, with a `CLAUDE.md` file that describes the architecture rules and the TDD workflow.
 - **Workflow:** I decided what to build and in what order. The AI proposed code one small step at a time. I ran the tests and read the code before every commit.
@@ -152,7 +209,7 @@ Suggested length: about 20 minutes, then the code review.
 
 ---
 
-## 8. Limitations and next steps
+## 9. Limitations and next steps
 
 - Per-user collections (`owner_id`), if the product needs them.
 - Optimistic locking (`@Version`) so that two concurrent edits do not overwrite each other.
