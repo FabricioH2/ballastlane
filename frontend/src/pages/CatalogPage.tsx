@@ -15,9 +15,8 @@ export default function CatalogPage() {
   const [selected, setSelected] = useState<string | null>(null) // name of the Pokemon whose detail is open
   const [notice, setNotice] = useState<Notice | null>(null)
 
-  // Runs on the first render and every time "page" changes.
   useEffect(() => {
-    let ignore = false // if the user changes page before the answer arrives, ignore the old answer
+    let ignore = false // drop responses that arrive after the page has changed
     setLoading(true)
     setError(null)
     api.listPokemon(page, PAGE_SIZE)

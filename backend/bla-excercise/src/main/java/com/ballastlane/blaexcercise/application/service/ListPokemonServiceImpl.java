@@ -7,7 +7,6 @@ import com.ballastlane.blaexcercise.domain.model.PokemonSummary;
 
 /**
  * US01: list Pokemon from the PokeAPI catalog, with pagination.
- * It is registered as a bean from infrastructure configuration.
  */
 public class ListPokemonServiceImpl implements ListPokemonService {
 

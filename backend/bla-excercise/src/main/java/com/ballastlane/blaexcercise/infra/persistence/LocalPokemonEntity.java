@@ -19,8 +19,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * JPA mapping of the local_pokemon table. It only lives in infrastructure:
- * the domain uses the LocalPokemon record, and LocalPokemonMapper converts between them.
+ * JPA mapping of local_pokemon. The domain works with LocalPokemon; LocalPokemonMapper converts between them.
  */
 @Entity
 @Table(name = "local_pokemon")
@@ -49,7 +48,7 @@ public class LocalPokemonEntity {
     private String region;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @BatchSize(size = 100) // a page of 20 Pokemon loads all their tags in 1 query, not 20 (the "N+1" problem)
+    @BatchSize(size = 100) // loads the tags of a whole page in one query (avoids N+1)
     @CollectionTable(name = "local_pokemon_tag", joinColumns = @JoinColumn(name = "local_pokemon_id"))
     @Column(name = "tag", nullable = false, length = 50)
     private Set<String> tags = new HashSet<>();
@@ -60,11 +59,7 @@ public class LocalPokemonEntity {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    /**
-     * JPA needs a no-arguments constructor to create the object when reading from the database.
-     * It is protected (not public) so the rest of the code cannot create half-filled entities;
-     * the mapper can use it because it is in the same package.
-     */
+    // Required by JPA. Protected so only Hibernate and the mapper (same package) can use it.
     protected LocalPokemonEntity() {
     }
 

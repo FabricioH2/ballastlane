@@ -36,9 +36,8 @@ public class PokeApiCatalogAdapter implements PokemonCatalog {
 
     @Override
     public PageResult<PokemonSummary> findAll(int page, int size) {
-        try{
+        try {
             int offset = page * size;
-
             PokemonListResponse list = pokeApi.getPokemonPage(offset, size);
 
             List<PokemonSummary> items = list.results().stream()
@@ -46,11 +45,9 @@ public class PokeApiCatalogAdapter implements PokemonCatalog {
                     .toList();
 
             return new PageResult<>(items, page, size, list.count());
-        }
-        catch(RestClientException e){
+        } catch (RestClientException e) {
             throw new PokemonCatalogUnavailableException(UNAVAILABLE_MESSAGE, e);
         }
-
     }
 
     private PokemonSummary toSummary(String name) {
@@ -68,10 +65,9 @@ public class PokeApiCatalogAdapter implements PokemonCatalog {
 
     @Override
     public Optional<PokemonDetail> findByIdOrName(String idOrName) {
-        try{
+        try {
             return fetchPokemonIfExists(idOrName).map(this::toDetail);
-
-        }catch(RestClientException e){
+        } catch (RestClientException e) {
             throw new PokemonCatalogUnavailableException(UNAVAILABLE_MESSAGE, e);
         }
     }

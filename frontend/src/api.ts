@@ -46,8 +46,7 @@ export class ApiError extends Error {
 }
 
 /**
- * In a "catch", TypeScript does not know what was thrown (its type is "unknown").
- * This turns anything into an ApiError so the components can read .status, .message and .fieldErrors.
+ * Normalizes anything caught (typed as unknown) into an ApiError.
  */
 export function toApiError(error: unknown): ApiError {
   return error instanceof ApiError ? error : new ApiError(0, String(error))
@@ -58,7 +57,6 @@ interface RequestOptions {
   body?: unknown
 }
 
-// <T> is the type of the answer: request<Page<PokemonSummary>>(...) returns a Page<PokemonSummary>.
 async function request<T>(path: string, { method = 'GET', body }: RequestOptions = {}): Promise<T> {
   const headers: Record<string, string> = {}
   if (body !== undefined) {

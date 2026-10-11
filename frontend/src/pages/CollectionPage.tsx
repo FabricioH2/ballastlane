@@ -12,7 +12,7 @@ export default function CollectionPage() {
   const [data, setData] = useState<Page<LocalPokemon> | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<number | null>(null)
-  const [reloadCount, setReloadCount] = useState(0) // change it to load the page again
+  const [reloadCount, setReloadCount] = useState(0) // incremented to refetch the current page
 
   useEffect(() => {
     let ignore = false

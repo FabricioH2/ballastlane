@@ -1,6 +1,4 @@
-// The shape of the JSON our Spring Boot API returns.
-// Each interface matches a Java record in web/model (PageResponse, PokemonSummaryResponse...).
-// TypeScript uses them to check, while you write, that you only use fields that exist.
+// Shapes of the JSON returned by the API. Each interface mirrors a record in the backend's web/model package.
 
 export interface Page<T> {
   content: T[]

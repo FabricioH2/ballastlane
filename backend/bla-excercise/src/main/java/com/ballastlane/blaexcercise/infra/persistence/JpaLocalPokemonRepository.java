@@ -42,8 +42,7 @@ public class JpaLocalPokemonRepository implements LocalPokemonRepository {
     }
 
     /**
-     * Loads the row and changes only our own fields. Hibernate detects the changes ("dirty checking")
-     * and runs the UPDATE; @PreUpdate refreshes updated_at. Official data and created_at are never touched.
+     * Copies only the custom fields onto the managed entity; official data and created_at never change here.
      */
     private LocalPokemon updateCustomFields(LocalPokemon pokemon) {
         LocalPokemonEntity entity = jpaRepository.findById(pokemon.id())

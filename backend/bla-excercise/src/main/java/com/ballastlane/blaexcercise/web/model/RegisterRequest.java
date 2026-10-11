@@ -5,8 +5,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 /**
- * Body of POST /api/auth/register. @Valid in the controller checks these rules before the use case runs.
- * Password max 72: BCrypt ignores everything after 72 bytes.
+ * Body of POST /api/auth/register. Password max 72: BCrypt ignores everything after 72 bytes.
  */
 public record RegisterRequest(
         @NotBlank

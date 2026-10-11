@@ -4,7 +4,6 @@ import com.ballastlane.blaexcercise.domain.exception.InvalidPaginationException;
 
 /**
  * Pagination rules shared by every list use case (PokeAPI list and local list).
- * Package-private: only the services in this package use it.
  */
 final class PaginationRules {
 

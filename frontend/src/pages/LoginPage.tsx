@@ -17,7 +17,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
   const isRegister = mode === 'register'
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
-    event.preventDefault() // stop the browser from reloading the page
+    event.preventDefault()
     setBusy(true)
     setError(null)
     setFieldErrors({})
