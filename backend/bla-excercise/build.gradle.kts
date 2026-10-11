@@ -1,5 +1,6 @@
 plugins {
     java
+    jacoco // test coverage report
     id("org.springframework.boot") version "4.1.1"
     id("io.spring.dependency-management") version "1.1.7"
 }
@@ -48,4 +49,28 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+// ---------- Test coverage (JaCoCo) ----------
+// ./gradlew test  ->  report in build/reports/jacoco/test/html/index.html
+
+jacoco {
+    toolVersion = "0.8.15" // first version with official support for Java 25 is 0.8.14
+}
+
+tasks.test {
+    finalizedBy(tasks.jacocoTestReport) // generate the report every time the tests run
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        html.required = true // to read in the browser
+        xml.required = true  // for tools such as CI or SonarQube
+    }
+}
+
+// Fixed jar name, independent of the version: the Dockerfile copies build/libs/app.jar
+tasks.bootJar {
+    archiveFileName = "app.jar"
 }

@@ -1,0 +1,48 @@
+# Starts the whole application with one command:  docker compose up --build
+# Then open http://localhost:3000 and sign in with user / user
+#
+# Values like ${POSTGRES_PASSWORD:-pokedex} mean "use the variable if it exists, otherwise pokedex".
+# You can override them in a .env file next to this one (it is in .gitignore).
+
+services:
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: pokedex
+      POSTGRES_USER: ${POSTGRES_USER:-pokedex}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pokedex}
+    ports:
+      - "5432:5432" # to look at the data from IntelliJ or psql on your machine
+    volumes:
+      - pgdata:/var/lib/postgresql # the data survives "docker compose down"
+    healthcheck: # "ready" only when PostgreSQL accepts connections
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build: ./backend/bla-excercise
+    environment:
+      # Turns on the "demo" profile: loads demo data (user "user" / password "user" and Onix).
+      # See backend/bla-excercise/src/main/resources/application-demo.yaml and db/seed/
+      SPRING_PROFILES_ACTIVE: demo
+      # Spring Boot reads environment variables as properties: SPRING_DATASOURCE_URL = spring.datasource.url
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/pokedex
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-pokedex}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-pokedex}
+    depends_on:
+      db:
+        condition: service_healthy # wait until PostgreSQL is ready, not only started
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+
+volumes:
+  pgdata:

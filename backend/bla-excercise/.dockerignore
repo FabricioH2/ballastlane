@@ -1,0 +1,6 @@
+# Not sent to Docker: build output, caches and IDE files (the image builds everything from the sources).
+.gradle/
+build/
+.idea/
+*.iml
+HELP.md
