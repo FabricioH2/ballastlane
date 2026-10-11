@@ -41,4 +41,4 @@ Tests:
 - End to end: `AuthFlowIntegrationTest`.
 
 ## Status
-All user stories (US01–US04), CRUD, auth, frontend and Docker are done. PRESENTATION.md and diagrams are done. Pending: GENAI.md.
+All user stories (US01–US04), CRUD, auth, frontend and Docker are done. PRESENTATION.md and diagrams are done. GENAI.md is done.

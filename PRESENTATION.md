@@ -214,6 +214,7 @@ The brief says the evaluation focuses on **Clean Architecture, TDD and code qual
 - Per-user collections (`owner_id`), if the product needs them.
 - Optimistic locking (`@Version`) so that two concurrent edits do not overwrite each other.
 - Refresh tokens / token revocation, and rate limiting on login.
+- Make a login for an unknown user take as long as one with a wrong password (run BCrypt against a dummy hash). The GenAI review found this timing leak, and my own login has it too.
 - An ArchUnit test that fails the build if a layer breaks the dependency rule.
 - OpenAPI / Swagger documentation.
 - Frontend tests (Vitest + Testing Library) and a CI pipeline that runs both test suites.
