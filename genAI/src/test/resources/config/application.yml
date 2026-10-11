@@ -1,0 +1,4 @@
+# Loaded in addition to src/main/resources/application.yml during tests (config/ takes precedence).
+app:
+  jwt:
+    secret: test-only-signing-secret-0123456789-abcdefghij
