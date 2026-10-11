@@ -1,0 +1,39 @@
+# ---------- Java / Gradle ----------
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+*.class
+*.log
+HELP.md
+
+# ---------- IDEs ----------
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+.vscode/
+.classpath
+.project
+.settings/
+bin/
+
+# ---------- Frontend (Node) ----------
+node_modules/
+dist/
+.vite/
+coverage/
+
+# ---------- Environment / secrets ----------
+.env
+.env.*
+!.env.example
+
+# ---------- OS ----------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---------- Personal notes (not part of the deliverable) ----------
+GUIA-PROYECTO.docx
+~$*.docx
