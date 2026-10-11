@@ -1,5 +1,5 @@
 # ---------- Stage 1: build the static files (HTML, JS, CSS) with Node ----------
-FROM node:24-alpine AS build
+FROM node:24-slim AS build
 WORKDIR /app
 
 # First only the dependency list: this layer is reused while package*.json do not change.
