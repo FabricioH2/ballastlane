@@ -11,6 +11,8 @@ The brief asks for three things: the prompt I would use to generate a task manag
 
 The most useful lesson is round 3: **a green test suite only proves what the tests check.**
 
+The complete generated project, after the fixes, is in [`genAI/`](genAI/). It includes the first plan exactly as the AI wrote it ([`genAI/PLAN.md`](genAI/PLAN.md)). To run its tests (Docker must be running): `cd genAI` and then `./gradlew test`.
+
 ---
 
 ## 1. Tool and workflow
@@ -80,7 +82,7 @@ Output
 
 ## 3. Generated code (sample)
 
-The full result has 67 Java files (main code and tests). These excerpts show the parts that matter most.
+The full result has 67 Java files (main code and tests), all in [`genAI/src`](genAI/src). These excerpts show the parts that matter most.
 
 **Ownership is part of every query.** The port does not even offer a lookup by id alone:
 

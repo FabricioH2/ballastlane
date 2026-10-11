@@ -224,6 +224,7 @@ backend/bla-excercise/
     application.yaml, application-demo.yaml
     db/migration/    Flyway schema (V1 local_pokemon, V2 users)
     db/seed/         demo data (only with the "demo" profile)
+genAI/              task API generated for the GenAI exercise (separate project)
 docs/diagrams/      architecture, request flow, auth, data model, deployment, frontend (SVG)
 frontend/
   src/
@@ -240,4 +241,4 @@ frontend/Dockerfile, frontend/nginx.conf
 
 ## Generative AI
 
-See [GENAI.md](GENAI.md).
+See [GENAI.md](GENAI.md). The task-management API generated for that exercise is a separate Gradle project in [`genAI/`](genAI/); it is not part of the Pokédex application or its Docker setup.
