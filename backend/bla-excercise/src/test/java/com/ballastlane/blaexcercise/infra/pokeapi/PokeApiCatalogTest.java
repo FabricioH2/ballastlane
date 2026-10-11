@@ -33,14 +33,18 @@ class PokeApiCatalogTest {
             .options(wireMockConfig().dynamicPort())
             .build();
 
+    private static final Duration READ_TIMEOUT = Duration.ofSeconds(2);
+
     private PokeApiCatalogAdapter catalog;
 
     @BeforeEach
     void setUp() {
+        // Generous read timeout: on a busy machine (or with the JaCoCo agent) the first request can take
+        // longer than 500 ms, which made the tests flaky. The "too slow" test uses a much longer delay.
         RestClient restClient = PokeApiClient.createRestClient(
                 pokeApi.getRuntimeInfo().getHttpBaseUrl(),
-                Duration.ofSeconds(1),
-                Duration.ofMillis(500));
+                Duration.ofSeconds(2),
+                READ_TIMEOUT);
         catalog = new PokeApiCatalogAdapter(new PokeApiClient(restClient));
     }
 
@@ -152,7 +156,8 @@ class PokeApiCatalogTest {
     @Test
     void throwsCatalogUnavailableWhenPokeApiIsTooSlow() {
         pokeApi.stubFor(get(urlPathEqualTo("/pokemon/bulbasaur"))
-                .willReturn(okJson(fixture("pokemon-bulbasaur.json")).withFixedDelay(2_000)));
+                .willReturn(okJson(fixture("pokemon-bulbasaur.json"))
+                        .withFixedDelay((int) READ_TIMEOUT.multipliedBy(2).toMillis())));
 
         assertThatThrownBy(() -> catalog.findByIdOrName("bulbasaur"))
                 .isInstanceOf(PokemonCatalogUnavailableException.class);
